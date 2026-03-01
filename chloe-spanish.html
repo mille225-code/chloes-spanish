@@ -15,6 +15,477 @@
 <style>
   /* Offline fallbacks if Google Fonts unavailable */
   @font-face { font-family: 'Fredoka One'; src: local('Arial Rounded MT Bold'), local('Arial'); }
+
+  /* LEADERBOARD */
+  .leaderboard-btn {
+    position: fixed;
+    bottom: 82px;
+    right: 20px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--yellow), var(--peach));
+    font-size: 1.4rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(251,191,36,0.45);
+    transition: all 0.2s;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .leaderboard-btn:hover { transform: scale(1.12); }
+
+  .leaderboard-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,240,248,0.96);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    animation: fadeIn 0.3s ease;
+    overflow-y: auto;
+  }
+  .leaderboard-overlay.hidden { display: none; }
+
+  .leaderboard-overlay h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2rem;
+    color: var(--pink);
+    text-shadow: 3px 3px 0 #ffd6ec;
+    margin-bottom: 6px;
+  }
+
+  .leaderboard-overlay p.lb-sub {
+    font-size: 0.9rem;
+    color: var(--lavender);
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+
+  .lb-entry-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .lb-name-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 3px solid #ffd6ec;
+    border-radius: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    outline: none;
+    background: white;
+  }
+  .lb-name-input:focus { border-color: var(--pink); }
+
+  .lb-save-btn {
+    padding: 12px 18px;
+    background: linear-gradient(135deg, var(--pink), var(--lavender));
+    border: none;
+    border-radius: 16px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(255,110,180,0.35);
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .lb-save-btn:hover { transform: scale(1.05); }
+
+  .lb-table {
+    width: 100%;
+    max-width: 400px;
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(255,110,180,0.15);
+    margin-bottom: 20px;
+  }
+
+  .lb-header {
+    background: linear-gradient(135deg, var(--pink), var(--lavender));
+    display: grid;
+    grid-template-columns: 40px 1fr 60px 60px;
+    padding: 12px 16px;
+    color: white;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.9rem;
+  }
+
+  .lb-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 60px 60px;
+    padding: 12px 16px;
+    align-items: center;
+    border-bottom: 2px solid #fff0f8;
+    transition: background 0.2s;
+  }
+  .lb-row:last-child { border-bottom: none; }
+  .lb-row:hover { background: #fff5fb; }
+  .lb-row.gold { background: #fffbeb; }
+  .lb-row.silver { background: #f8fafc; }
+  .lb-row.bronze { background: #fff7ed; }
+
+  .lb-rank {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  .lb-name {
+    font-weight: 800;
+    color: var(--text);
+    font-size: 0.95rem;
+  }
+  .lb-score {
+    font-family: 'Fredoka One', cursive;
+    color: var(--mint);
+    font-size: 1rem;
+    text-align: center;
+  }
+  .lb-date {
+    font-size: 0.72rem;
+    color: #aaa;
+    text-align: right;
+    font-weight: 600;
+  }
+
+  .lb-empty {
+    padding: 30px;
+    text-align: center;
+    color: #d8a5e0;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .lb-close-btn {
+    padding: 14px 40px;
+    background: linear-gradient(135deg, var(--mint), var(--sky));
+    border: none;
+    border-radius: 30px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(52,211,153,0.35);
+    transition: all 0.2s;
+    margin-bottom: 12px;
+  }
+  .lb-close-btn:hover { transform: scale(1.05); }
+
+  .lb-clear-btn {
+    background: none;
+    border: none;
+    color: #f87171;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    text-decoration: underline;
+  }
+
+  .lb-current-score {
+    background: linear-gradient(135deg, #fff5fb, #ffeef7);
+    border: 3px solid #ffd6ec;
+    border-radius: 20px;
+    padding: 16px 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 360px;
+  }
+  .lb-current-score p { font-size: 0.85rem; color: var(--lavender); font-weight: 700; }
+  .lb-current-score .lb-big { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--pink); }
+
+  /* HIGH SCORE CELEBRATION */
+  .hs-celebration {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255,215,0,0.95), rgba(255,165,0,0.95));
+    z-index: 150;
+    flex-direction: column;
+    text-align: center;
+    padding: 40px;
+    animation: fadeIn 0.3s ease;
+  }
+  .hs-celebration.hidden { display: none; }
+
+  .hs-crown {
+    font-size: 6rem;
+    line-height: 1;
+    animation: crownPop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards, crownGlow 1.5s ease-in-out 0.6s infinite;
+    margin-bottom: 8px;
+  }
+  @keyframes crownPop {
+    0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  @keyframes crownGlow {
+    0%,100% { transform: scale(1) rotate(-3deg); filter: drop-shadow(0 0 8px gold); }
+    50%     { transform: scale(1.15) rotate(3deg); filter: drop-shadow(0 0 24px gold); }
+  }
+
+  .hs-celebration h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: 2.4rem;
+    color: white;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.15);
+    margin-bottom: 4px;
+    animation: slideDown 0.5s ease 0.2s both;
+  }
+  .hs-celebration .hs-sub {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 8px;
+    animation: slideDown 0.5s ease 0.3s both;
+  }
+  .hs-celebration .hs-score {
+    font-family: 'Fredoka One', cursive;
+    font-size: 3.5rem;
+    color: white;
+    text-shadow: 4px 4px 0 rgba(0,0,0,0.15);
+    margin: 8px 0;
+    animation: scoreZoom 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.4s both;
+  }
+  @keyframes scoreZoom {
+    0%   { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .hs-celebration .hs-label {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.85);
+    font-weight: 800;
+    margin-bottom: 20px;
+    animation: slideDown 0.5s ease 0.5s both;
+  }
+
+  .hs-stars {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 20px;
+    animation: slideDown 0.5s ease 0.6s both;
+  }
+  .hs-star {
+    font-size: 2.2rem;
+    animation: starSpin 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .hs-star:nth-child(1) { animation-delay: 0.6s; }
+  .hs-star:nth-child(2) { animation-delay: 0.7s; }
+  .hs-star:nth-child(3) { animation-delay: 0.8s; }
+  .hs-star:nth-child(4) { animation-delay: 0.9s; }
+  .hs-star:nth-child(5) { animation-delay: 1.0s; }
+  @keyframes starSpin {
+    0%   { transform: scale(0) rotate(-180deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  .hs-bunnies {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+    animation: slideDown 0.5s ease 0.7s both;
+  }
+  .hs-bunny { width: 56px; height: 56px; }
+  .hs-bunny:nth-child(1) { animation: cartwheelCele 1.5s ease-in-out infinite; }
+  .hs-bunny:nth-child(2) { animation: bounceCele 0.8s ease-in-out infinite; }
+  .hs-bunny:nth-child(3) { animation: cartwheelCele 1.5s ease-in-out infinite reverse; }
+  @keyframes cartwheelCele {
+    0%,100% { transform: rotate(0deg); }
+    50%     { transform: rotate(360deg); }
+  }
+  @keyframes bounceCele {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-18px); }
+  }
+
+  .hs-btn {
+    padding: 16px 36px;
+    background: white;
+    border: none;
+    border-radius: 30px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.3rem;
+    color: #f59e0b;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+    animation: slideDown 0.5s ease 0.8s both;
+    margin-bottom: 12px;
+  }
+  .hs-btn:hover { transform: scale(1.07); }
+
+  .hs-save-btn {
+    background: rgba(255,255,255,0.25);
+    border: 3px solid white;
+    border-radius: 30px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: white;
+    cursor: pointer;
+    padding: 10px 28px;
+    transition: all 0.2s;
+    animation: slideDown 0.5s ease 0.9s both;
+  }
+  .hs-save-btn:hover { background: rgba(255,255,255,0.4); }
+
+  /* Shooting stars for hs background */
+  .shooting-star {
+    position: fixed;
+    font-size: 1.4rem;
+    pointer-events: none;
+    animation: shootAcross linear forwards;
+    z-index: 149;
+  }
+  @keyframes shootAcross {
+    0%   { transform: translate(0,0) scale(0); opacity: 0; }
+    10%  { opacity: 1; transform: translate(0,0) scale(1); }
+    90%  { opacity: 1; }
+    100% { transform: translate(var(--sx), var(--sy)) scale(0.5); opacity: 0; }
+  }
+
+  /* WORD SEARCH */
+
+  .ws-hint {
+    text-align: center;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #c084fc;
+    margin-bottom: 10px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .ws-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .ws-info {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.2rem;
+    color: var(--lavender);
+  }
+  .ws-new-btn {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, var(--pink), var(--lavender));
+    border: none;
+    border-radius: 20px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.9rem;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(255,110,180,0.3);
+    transition: all 0.2s;
+  }
+  .ws-new-btn:hover { transform: scale(1.05); }
+
+  .ws-word-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    justify-content: center;
+  }
+  .ws-word-chip {
+    padding: 6px 14px;
+    background: white;
+    border: 3px solid #ffd6ec;
+    border-radius: 20px;
+    font-family: 'Fredoka One', cursive;
+    font-size: 0.85rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .ws-word-chip.found {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-color: #34d399;
+    color: #065f46;
+    transform: scale(0.95);
+  }
+  .ws-word-chip.found .ws-english { text-decoration: line-through; opacity: 0.6; }
+  .ws-word-chip.found .ws-spanish-reveal {
+    display: inline !important;
+    font-size: 0.75rem;
+    color: #059669;
+    font-weight: 800;
+  }
+  .ws-spanish-reveal { display: none; }
+
+  .ws-grid-wrap {
+    background: white;
+    border-radius: 20px;
+    padding: 14px;
+    box-shadow: 0 8px 30px rgba(255,110,180,0.15);
+    border: 3px solid #ffd6ec;
+    overflow-x: auto;
+    margin-bottom: 16px;
+  }
+  .ws-grid {
+    display: grid;
+    gap: 3px;
+    margin: 0 auto;
+    user-select: none;
+    touch-action: none;
+  }
+  .ws-cell {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', cursive;
+    font-size: 1rem;
+    color: var(--text);
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff5fb;
+    transition: background 0.15s, color 0.15s;
+    border: 2px solid transparent;
+  }
+  .ws-cell:hover { background: #ffd6ec; }
+  .ws-cell.selecting { background: #fbbf24; color: white; transform: scale(1.08); }
+  .ws-cell.found-cell { background: linear-gradient(135deg, #34d399, #38bdf8); color: white; }
+  .ws-cell.found-new { animation: cellPop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+  @keyframes cellPop {
+    0%  { transform: scale(1.3); }
+    100%{ transform: scale(1); }
+  }
+
+  .ws-complete {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #fff5fb, #ffeef7);
+    border-radius: 20px;
+    border: 3px solid #ffd6ec;
+    animation: fadeIn 0.4s ease;
+  }
+  .ws-complete.hidden { display: none; }
+  .ws-complete-text {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.4rem;
+    color: var(--pink);
+    margin: 8px 0 16px;
+  }
 </style>
 <style>
   :root {
@@ -178,6 +649,8 @@
   .cat-btn[data-cat="food"].active { background: #fb923c; border-color: #ea580c; }
   .cat-btn[data-cat="family"].active { background: #c084fc; border-color: #9333ea; }
   .cat-btn[data-cat="chat"].active { background: #f59e0b; border-color: #d97706; }
+  .cat-btn[data-cat="weather"].active { background: #38bdf8; border-color: #0284c7; }
+  .cat-btn[data-cat="transport"].active { background: #f43f5e; border-color: #be123c; }
 
   /* FLASHCARD */
   .flashcard-area {
@@ -577,6 +1050,7 @@
   <div class="tabs">
     <button class="tab active" onclick="switchMode('flashcard')">📚 Flashcards</button>
     <button class="tab" onclick="switchMode('quiz')">🎯 Quiz Game</button>
+    <button class="tab" onclick="switchMode('wordsearch')">🔍 Word Search</button>
   </div>
 
   <!-- CATEGORY BUTTONS -->
@@ -587,6 +1061,8 @@
     <button class="cat-btn" data-cat="food" onclick="selectCategory('food')">🍎 Food</button>
     <button class="cat-btn" data-cat="family" onclick="selectCategory('family')">👨‍👩‍👧 Family</button>
     <button class="cat-btn" data-cat="chat" onclick="selectCategory('chat')">💬 Chat</button>
+    <button class="cat-btn" data-cat="weather" onclick="selectCategory('weather')">⛅ Weather</button>
+    <button class="cat-btn" data-cat="transport" onclick="selectCategory('transport')">🚗 Transport</button>
   </div>
 
   <!-- FLASHCARD MODE -->
@@ -651,6 +1127,29 @@
   </div>
 
 
+  <!-- LEADERBOARD BUTTON -->
+  <button class="leaderboard-btn" onclick="showLeaderboard()" title="Leaderboard">🏆</button>
+
+  <!-- WORD SEARCH MODE -->
+  <div id="wordsearch-mode" style="display:none">
+    <div class="ws-header">
+      <div class="ws-info">
+        <span id="ws-found">0</span>/<span id="ws-total">0</span> found
+      </div>
+      <button class="ws-new-btn" onclick="generateWordSearch()">🔄 New Puzzle</button>
+    </div>
+    <div class="ws-hint">👇 Find the Spanish word for each one!</div>
+    <div class="ws-word-list" id="ws-word-list"></div>
+    <div class="ws-grid-wrap">
+      <div class="ws-grid" id="ws-grid"></div>
+    </div>
+    <div class="ws-complete hidden" id="ws-complete">
+      <div style="font-size:3rem">🎉</div>
+      <div class="ws-complete-text">¡Perfecto! You found them all!</div>
+      <button class="ws-new-btn" onclick="generateWordSearch()">Play Again 🐰</button>
+    </div>
+  </div>
+
   <!-- MUSIC BUTTON -->
   <button class="music-btn" id="music-btn" onclick="toggleMusic()" title="Toggle Music">🎵</button>
 </div>
@@ -661,6 +1160,88 @@
   <h2>Amazing, Chloe! 🎉</h2>
   <p>You got 5 in a row! ¡Muy bien! 🌟</p>
   <button class="play-again-btn" onclick="hideCelebration()">Keep Playing! 🐰</button>
+</div>
+
+<!-- HIGH SCORE CELEBRATION -->
+<div class="hs-celebration hidden" id="hs-celebration">
+  <div class="hs-crown">👑</div>
+  <h2>NEW HIGH SCORE!</h2>
+  <div class="hs-sub">¡Eres la mejor, Chloe! 🌟</div>
+  <div class="hs-score" id="hs-score-num">0 ⭐</div>
+  <div class="hs-label">You beat your best score!</div>
+  <div class="hs-stars">
+    <span class="hs-star">🌟</span>
+    <span class="hs-star">🌟</span>
+    <span class="hs-star">🌟</span>
+    <span class="hs-star">🌟</span>
+    <span class="hs-star">🌟</span>
+  </div>
+  <div class="hs-bunnies">
+    <svg class="hs-bunny" viewBox="0 0 60 60" fill="none">
+      <ellipse cx="22" cy="16" rx="5" ry="10" fill="#ffb3d9"/>
+      <ellipse cx="38" cy="16" rx="5" ry="10" fill="#ffb3d9"/>
+      <ellipse cx="22" cy="16" rx="3" ry="7" fill="#ff80c0"/>
+      <ellipse cx="38" cy="16" rx="3" ry="7" fill="#ff80c0"/>
+      <circle cx="30" cy="32" r="12" fill="#ffe0f0"/>
+      <circle cx="26" cy="30" r="2" fill="#4a1942"/>
+      <circle cx="34" cy="30" r="2" fill="#4a1942"/>
+      <ellipse cx="30" cy="34" rx="3" ry="2" fill="#ff80c0"/>
+      <ellipse cx="30" cy="46" rx="8" ry="7" fill="#ffb3d9"/>
+    </svg>
+    <svg class="hs-bunny" viewBox="0 0 60 60" fill="none">
+      <ellipse cx="22" cy="16" rx="5" ry="10" fill="#fbbf24"/>
+      <ellipse cx="38" cy="16" rx="5" ry="10" fill="#fbbf24"/>
+      <ellipse cx="22" cy="16" rx="3" ry="7" fill="#fde68a"/>
+      <ellipse cx="38" cy="16" rx="3" ry="7" fill="#fde68a"/>
+      <circle cx="30" cy="32" r="12" fill="#fef9c3"/>
+      <circle cx="26" cy="30" r="2" fill="#4a1942"/>
+      <circle cx="34" cy="30" r="2" fill="#4a1942"/>
+      <ellipse cx="30" cy="34" rx="3" ry="2" fill="#fbbf24"/>
+      <ellipse cx="30" cy="46" rx="8" ry="7" fill="#fbbf24"/>
+      <text x="24" y="28" font-size="9">👑</text>
+    </svg>
+    <svg class="hs-bunny" viewBox="0 0 60 60" fill="none">
+      <ellipse cx="22" cy="16" rx="5" ry="10" fill="#34d399"/>
+      <ellipse cx="38" cy="16" rx="5" ry="10" fill="#34d399"/>
+      <ellipse cx="22" cy="16" rx="3" ry="7" fill="#6ee7b7"/>
+      <ellipse cx="38" cy="16" rx="3" ry="7" fill="#6ee7b7"/>
+      <circle cx="30" cy="32" r="12" fill="#d1fae5"/>
+      <circle cx="26" cy="30" r="2" fill="#4a1942"/>
+      <circle cx="34" cy="30" r="2" fill="#4a1942"/>
+      <ellipse cx="30" cy="34" rx="3" ry="2" fill="#6ee7b7"/>
+      <ellipse cx="30" cy="46" rx="8" ry="7" fill="#34d399"/>
+    </svg>
+  </div>
+  <button class="hs-btn" onclick="hideHighScore()">Keep Playing! 🐰</button>
+  <button class="hs-save-btn" onclick="hideHighScoreAndSave()">Save to Leaderboard 🏆</button>
+</div>
+
+<!-- LEADERBOARD OVERLAY -->
+<div class="leaderboard-overlay hidden" id="leaderboard-overlay">
+  <div style="font-size:3rem; margin-bottom:8px;">🏆</div>
+  <h2>Leaderboard!</h2>
+  <p class="lb-sub">Top Spanish stars 🌟</p>
+
+  <div class="lb-current-score" id="lb-current-score" style="display:none">
+    <p>Your score this session</p>
+    <div class="lb-big" id="lb-current-num">0 ⭐</div>
+    <p id="lb-current-pct"></p>
+  </div>
+
+  <div class="lb-entry-form">
+    <input class="lb-name-input" id="lb-name-input" type="text" maxlength="12" placeholder="Enter your name..." />
+    <button class="lb-save-btn" onclick="saveScore()">Save ⭐</button>
+  </div>
+
+  <div class="lb-table" id="lb-table">
+    <div class="lb-header">
+      <div>#</div><div>Name</div><div>⭐ Stars</div><div>Date</div>
+    </div>
+    <div id="lb-rows"></div>
+  </div>
+
+  <button class="lb-close-btn" onclick="hideLeaderboard()">Back to Game 🐰</button>
+  <button class="lb-clear-btn" onclick="clearLeaderboard()">Clear all scores</button>
 </div>
 
 <script>
@@ -820,6 +1401,50 @@
       { emoji: '💤', english: 'I am sleepy', spanish: 'Tengo sueño', pronunciation: 'say: TEN-goh SWEH-nyoh' },
       { emoji: '🍽️', english: 'I am hungry', spanish: 'Tengo hambre', pronunciation: 'say: TEN-goh AHM-breh' },
       { emoji: '💧', english: 'I am thirsty', spanish: 'Tengo sed', pronunciation: 'say: TEN-goh sed' },
+    ],
+    weather: [
+      { emoji: '☀️', english: 'Sun', spanish: 'Sol', pronunciation: 'say: sohl' },
+      { emoji: '🌧️', english: 'Rain', spanish: 'Lluvia', pronunciation: 'say: YOO-byah' },
+      { emoji: '❄️', english: 'Snow', spanish: 'Nieve', pronunciation: 'say: NYEH-beh' },
+      { emoji: '🌬️', english: 'Wind', spanish: 'Viento', pronunciation: 'say: BYEN-toh' },
+      { emoji: '⛅', english: 'Cloudy', spanish: 'Nublado', pronunciation: 'say: noo-BLAH-doh' },
+      { emoji: '⛈️', english: 'Storm', spanish: 'Tormenta', pronunciation: 'say: tor-MEN-tah' },
+      { emoji: '🌈', english: 'Rainbow', spanish: 'Arcoíris', pronunciation: 'say: ar-koh-EE-rees' },
+      { emoji: '🌡️', english: 'Hot', spanish: 'Caliente', pronunciation: 'say: kah-LYEN-teh' },
+      { emoji: '🥶', english: 'Cold', spanish: 'Frío', pronunciation: 'say: FREE-oh' },
+      { emoji: '🌤️', english: 'Sunny', spanish: 'Soleado', pronunciation: 'say: soh-leh-AH-doh' },
+      { emoji: '🌫️', english: 'Fog', spanish: 'Niebla', pronunciation: 'say: NYEH-blah' },
+      { emoji: '🌩️', english: 'Lightning', spanish: 'Relámpago', pronunciation: 'say: reh-LAM-pah-goh' },
+      { emoji: '🌪️', english: 'Tornado', spanish: 'Tornado', pronunciation: 'say: tor-NAH-doh' },
+      { emoji: '🌊', english: 'Wave', spanish: 'Ola', pronunciation: 'say: OH-lah' },
+      { emoji: '🌝', english: 'Moon', spanish: 'Luna', pronunciation: 'say: LOO-nah' },
+      { emoji: '⭐', english: 'Star', spanish: 'Estrella', pronunciation: 'say: es-TREH-yah' },
+      { emoji: '🌸', english: 'Spring', spanish: 'Primavera', pronunciation: 'say: pree-mah-BEH-rah' },
+      { emoji: '🌞', english: 'Summer', spanish: 'Verano', pronunciation: 'say: beh-RAH-noh' },
+      { emoji: '🍂', english: 'Autumn', spanish: 'Otoño', pronunciation: 'say: oh-TOH-nyoh' },
+      { emoji: '⛄', english: 'Winter', spanish: 'Invierno', pronunciation: 'say: een-BYEHR-noh' },
+    ],
+    transport: [
+      { emoji: '🚗', english: 'Car', spanish: 'Coche', pronunciation: 'say: KOH-cheh' },
+      { emoji: '🚌', english: 'Bus', spanish: 'Autobús', pronunciation: 'say: ow-toh-BOOS' },
+      { emoji: '✈️', english: 'Airplane', spanish: 'Avión', pronunciation: 'say: ah-BYOHN' },
+      { emoji: '🚂', english: 'Train', spanish: 'Tren', pronunciation: 'say: trehn' },
+      { emoji: '🚲', english: 'Bicycle', spanish: 'Bicicleta', pronunciation: 'say: bee-see-KLEH-tah' },
+      { emoji: '🚀', english: 'Rocket', spanish: 'Cohete', pronunciation: 'say: koh-EH-teh' },
+      { emoji: '⛵', english: 'Boat', spanish: 'Barco', pronunciation: 'say: BAR-koh' },
+      { emoji: '🚁', english: 'Helicopter', spanish: 'Helicóptero', pronunciation: 'say: eh-lee-KOP-teh-roh' },
+      { emoji: '🛸', english: 'UFO', spanish: 'Ovni', pronunciation: 'say: OHB-nee' },
+      { emoji: '🏍️', english: 'Motorbike', spanish: 'Moto', pronunciation: 'say: MOH-toh' },
+      { emoji: '🚒', english: 'Fire Truck', spanish: 'Camión de bomberos', pronunciation: 'say: kah-MYON deh bom-BEH-rohs' },
+      { emoji: '🚑', english: 'Ambulance', spanish: 'Ambulancia', pronunciation: 'say: am-boo-LAN-syah' },
+      { emoji: '🚓', english: 'Police Car', spanish: 'Coche de policía', pronunciation: 'say: KOH-cheh deh poh-lee-SEE-ah' },
+      { emoji: '🛵', english: 'Scooter', spanish: 'Patinete', pronunciation: 'say: pah-tee-NEH-teh' },
+      { emoji: '🚜', english: 'Tractor', spanish: 'Tractor', pronunciation: 'say: trak-TOR' },
+      { emoji: '🛳️', english: 'Ship', spanish: 'Barco grande', pronunciation: 'say: BAR-koh GRAN-deh' },
+      { emoji: '🚢', english: 'Cruise Ship', spanish: 'Crucero', pronunciation: 'say: kroo-SEH-roh' },
+      { emoji: '🏎️', english: 'Race Car', spanish: 'Coche de carreras', pronunciation: 'say: KOH-cheh deh kah-REH-rahs' },
+      { emoji: '🛺', english: 'Taxi', spanish: 'Taxi', pronunciation: 'say: TAK-see' },
+      { emoji: '🚶', english: 'Walk', spanish: 'Caminar', pronunciation: 'say: kah-mee-NAR' },
     ]
   };
 
@@ -850,11 +1475,15 @@
 
   function switchMode(m) {
     mode = m;
-    document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', (i===0&&m==='flashcard')||(i===1&&m==='quiz')));
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', (i===0&&m==='flashcard')||(i===1&&m==='quiz')||(i===2&&m==='wordsearch'));
+    });
     document.getElementById('flashcard-mode').style.display = m === 'flashcard' ? 'block' : 'none';
     document.getElementById('quiz-mode').style.display = m === 'quiz' ? 'block' : 'none';
+    document.getElementById('wordsearch-mode').style.display = m === 'wordsearch' ? 'block' : 'none';
     if (m === 'flashcard') { isFlipped = false; updateCard(); }
-    else loadQuestion();
+    else if (m === 'quiz') loadQuestion();
+    else if (m === 'wordsearch') generateWordSearch();
   }
 
   function updateCard() {
@@ -874,15 +1503,47 @@
     isFlipped = false;
   }
 
+  // Pick the best available Spanish voice
+  let bestSpanishVoice = null;
+
+  function loadBestVoice() {
+    const voices = window.speechSynthesis.getVoices();
+    // Priority order: natural/enhanced iOS voices first, then any Spanish voice
+    const preferred = [
+      'Monica', 'Paulina', 'Jorge', // Apple natural Spanish voices
+      'es-MX', 'es-US', 'es-ES',    // Mexican/US Spanish sound more natural for kids
+    ];
+    // Try to find a preferred voice by name
+    for (const name of preferred) {
+      const match = voices.find(v => v.name.includes(name) && v.lang.startsWith('es'));
+      if (match) { bestSpanishVoice = match; return; }
+    }
+    // Try enhanced/premium voices (marked with "Enhanced" or "Premium" on iOS)
+    const enhanced = voices.find(v => v.lang.startsWith('es') && (v.name.includes('Enhanced') || v.name.includes('Premium')));
+    if (enhanced) { bestSpanishVoice = enhanced; return; }
+    // Fall back to any Spanish voice
+    bestSpanishVoice = voices.find(v => v.lang.startsWith('es')) || null;
+  }
+
+  // Load voices when available (Chrome loads async, Safari loads sync)
+  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = loadBestVoice;
+  }
+  loadBestVoice();
+
   function speakSpanish(e) {
     e.stopPropagation(); // prevent card flip
-    const word = document.getElementById("card-spanish").textContent;
+    const word = e._override || document.getElementById("card-spanish").textContent;
     if (!word) return;
     window.speechSynthesis.cancel();
+    // Reload voices in case they weren't ready before
+    if (!bestSpanishVoice) loadBestVoice();
     const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = "es-ES";
-    utterance.rate = 0.85;
-    utterance.pitch = 1.1;
+    utterance.lang = "es-MX"; // Mexican Spanish sounds most natural for kids
+    if (bestSpanishVoice) utterance.voice = bestSpanishVoice;
+    utterance.rate = 0.80;  // slightly slower so kids can follow
+    utterance.pitch = 1.0;  // natural pitch
+    utterance.volume = 1.0;
     const btn = document.getElementById("speak-btn");
     btn.classList.add("speaking");
     btn.textContent = "🔊 Listening...";
@@ -975,15 +1636,60 @@
 
   function nextQuestion() { loadQuestion(); }
 
+  function isNewHighScore() {
+    const lb = getLeaderboard();
+    if (lb.length === 0) return quizCorrect > 0;
+    return quizCorrect > lb[0].correct;
+  }
+
+  function launchShootingStars() {
+    const emojis = ['⭐','🌟','✨','👑','🎉'];
+    for (let i = 0; i < 12; i++) {
+      const el = document.createElement('div');
+      el.className = 'shooting-star';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = (Math.random() * 80) + 'vw';
+      el.style.top = (Math.random() * 80) + 'vh';
+      const sx = (Math.random() - 0.5) * 400 + 'px';
+      const sy = (Math.random() - 0.5) * 400 + 'px';
+      el.style.setProperty('--sx', sx);
+      el.style.setProperty('--sy', sy);
+      el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      el.style.animationDelay = (Math.random() * 1) + 's';
+      el.addEventListener('animationend', () => el.remove());
+      document.body.appendChild(el);
+    }
+  }
+
   function showCelebration() {
     quizStreak = 0;
     document.getElementById('score-streak').textContent = 0;
-    document.getElementById('celebration').classList.remove('hidden');
+    if (isNewHighScore()) {
+      // Show special high score celebration!
+      document.getElementById('hs-score-num').textContent = quizCorrect + ' ⭐';
+      document.getElementById('hs-celebration').classList.remove('hidden');
+      launchShootingStars();
+      setTimeout(launchShootingStars, 1200);
+    } else {
+      document.getElementById('celebration').classList.remove('hidden');
+    }
   }
 
   function hideCelebration() {
     document.getElementById('celebration').classList.add('hidden');
     loadQuestion();
+  }
+
+  function hideHighScore() {
+    document.getElementById('hs-celebration').classList.add('hidden');
+    document.querySelectorAll('.shooting-star').forEach(e => e.remove());
+    loadQuestion();
+  }
+
+  function hideHighScoreAndSave() {
+    document.getElementById('hs-celebration').classList.add('hidden');
+    document.querySelectorAll('.shooting-star').forEach(e => e.remove());
+    showLeaderboard();
   }
 
 
@@ -1065,6 +1771,307 @@
       navigator.serviceWorker.register('sw.js').catch(() => {});
     });
   }
+
+  // ---- LEADERBOARD ----
+  const LB_KEY = 'chloes_spanish_leaderboard';
+
+  function getLeaderboard() {
+    try {
+      return JSON.parse(localStorage.getItem(LB_KEY) || '[]');
+    } catch(e) { return []; }
+  }
+
+  function saveLeaderboard(data) {
+    try { localStorage.setItem(LB_KEY, JSON.stringify(data)); } catch(e) {}
+  }
+
+  function saveScore() {
+    const name = document.getElementById('lb-name-input').value.trim() || 'Player';
+    if (quizTotal === 0) { alert("Play some quiz questions first!"); return; }
+    const entry = {
+      name,
+      correct: quizCorrect,
+      total: quizTotal,
+      pct: Math.round((quizCorrect / quizTotal) * 100),
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    };
+    const lb = getLeaderboard();
+    lb.push(entry);
+    lb.sort((a, b) => b.correct - a.correct || b.pct - a.pct);
+    saveLeaderboard(lb.slice(0, 20)); // keep top 20
+    renderLeaderboard();
+    document.getElementById('lb-name-input').value = '';
+  }
+
+  function renderLeaderboard() {
+    const lb = getLeaderboard();
+    const container = document.getElementById('lb-rows');
+    const medals = ['🥇', '🥈', '🥉'];
+    const rowClasses = ['gold', 'silver', 'bronze'];
+    if (lb.length === 0) {
+      container.innerHTML = '<div class="lb-empty">No scores yet! Play the quiz and save your score 🐰</div>';
+      return;
+    }
+    container.innerHTML = lb.map((e, i) => `
+      <div class="lb-row ${rowClasses[i] || ''}">
+        <div class="lb-rank">${medals[i] || (i + 1)}</div>
+        <div class="lb-name">${e.name}</div>
+        <div class="lb-score">${e.correct}</div>
+        <div class="lb-date">${e.date}</div>
+      </div>
+    `).join('');
+  }
+
+  function showLeaderboard() {
+    // Show current session score
+    const scoreEl = document.getElementById('lb-current-score');
+    if (quizTotal > 0) {
+      scoreEl.style.display = 'block';
+      document.getElementById('lb-current-num').textContent = quizCorrect + ' ⭐';
+      document.getElementById('lb-current-pct').textContent = Math.round((quizCorrect/quizTotal)*100) + '% correct from ' + quizTotal + ' questions';
+      document.getElementById('lb-name-input').placeholder = 'Enter your name to save...';
+    } else {
+      scoreEl.style.display = 'none';
+    }
+    renderLeaderboard();
+    document.getElementById('leaderboard-overlay').classList.remove('hidden');
+  }
+
+  function hideLeaderboard() {
+    document.getElementById('leaderboard-overlay').classList.add('hidden');
+  }
+
+  function clearLeaderboard() {
+    if (confirm('Clear all scores? This cannot be undone!')) {
+      saveLeaderboard([]);
+      renderLeaderboard();
+    }
+  }
+
+
+  // ──────────────── WORD SEARCH ────────────────
+  const WS_SIZE = 12;
+  let wsGrid = [];
+  let wsWords = [];
+  let wsFound = new Set();
+  let wsSelecting = false;
+  let wsStartCell = null;
+  let wsCurrentSelection = [];
+  let wsPlacedWords = []; // [{word, cells:[{r,c}]}]
+
+  function getWsWords() {
+    const cards = getCards();
+    // Pick up to 8 short-ish Spanish words (strip accents for grid, keep original for display)
+    const sorted = [...cards]
+      .filter(c => {
+        const w = c.spanish.replace(/[^a-záéíóúüñ]/gi,'').toUpperCase();
+        return w.length >= 3 && w.length <= 10;
+      })
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 8);
+    return sorted.map(c => ({
+      english: c.english,
+      emoji: c.emoji,
+      display: c.spanish,
+      word: c.spanish.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z]/g,'').toUpperCase()
+    }));
+  }
+
+  function generateWordSearch() {
+    wsFound = new Set();
+    wsPlacedWords = [];
+    wsGrid = Array.from({length: WS_SIZE}, () => Array(WS_SIZE).fill(''));
+    wsWords = getWsWords();
+
+    const directions = [
+      [0,1],[1,0],[1,1],[0,-1],[-1,0],[-1,-1],[1,-1],[-1,1]
+    ];
+
+    // Place each word
+    for (const w of wsWords) {
+      let placed = false;
+      for (let attempt = 0; attempt < 200 && !placed; attempt++) {
+        const dir = directions[Math.floor(Math.random() * directions.length)];
+        const r = Math.floor(Math.random() * WS_SIZE);
+        const c = Math.floor(Math.random() * WS_SIZE);
+        if (canPlace(w.word, r, c, dir)) {
+          placeWord(w.word, r, c, dir, w);
+          placed = true;
+        }
+      }
+    }
+
+    // Fill empty cells with random letters
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    for (let r = 0; r < WS_SIZE; r++)
+      for (let c = 0; c < WS_SIZE; c++)
+        if (!wsGrid[r][c]) wsGrid[r][c] = letters[Math.floor(Math.random() * letters.length)];
+
+    renderWsGrid();
+    renderWsWordList();
+    document.getElementById('ws-complete').classList.add('hidden');
+    document.getElementById('ws-found').textContent = 0;
+    document.getElementById('ws-total').textContent = wsPlacedWords.length;
+  }
+
+  function canPlace(word, r, c, [dr, dc]) {
+    for (let i = 0; i < word.length; i++) {
+      const nr = r + dr * i, nc = c + dc * i;
+      if (nr < 0 || nr >= WS_SIZE || nc < 0 || nc >= WS_SIZE) return false;
+      if (wsGrid[nr][nc] && wsGrid[nr][nc] !== word[i]) return false;
+    }
+    return true;
+  }
+
+  function placeWord(word, r, c, [dr, dc], wordObj) {
+    const cells = [];
+    for (let i = 0; i < word.length; i++) {
+      const nr = r + dr * i, nc = c + dc * i;
+      wsGrid[nr][nc] = word[i];
+      cells.push({r: nr, c: nc});
+    }
+    wsPlacedWords.push({...wordObj, cells});
+  }
+
+  function renderWsGrid() {
+    const grid = document.getElementById('ws-grid');
+    grid.style.gridTemplateColumns = `repeat(${WS_SIZE}, 32px)`;
+    grid.innerHTML = '';
+    for (let r = 0; r < WS_SIZE; r++) {
+      for (let c = 0; c < WS_SIZE; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'ws-cell';
+        cell.textContent = wsGrid[r][c];
+        cell.dataset.r = r;
+        cell.dataset.c = c;
+        // Mouse events
+        cell.addEventListener('mousedown', wsStartSelect);
+        cell.addEventListener('mouseover', wsContinueSelect);
+        cell.addEventListener('mouseup', wsEndSelect);
+        // Touch events
+        cell.addEventListener('touchstart', wsTouchStart, {passive:false});
+        cell.addEventListener('touchmove', wsTouchMove, {passive:false});
+        cell.addEventListener('touchend', wsTouchEnd, {passive:false});
+        grid.appendChild(cell);
+      }
+    }
+    document.addEventListener('mouseup', wsEndSelect);
+  }
+
+  function renderWsWordList() {
+    const list = document.getElementById('ws-word-list');
+    list.innerHTML = wsPlacedWords.map(w =>
+      `<div class="ws-word-chip" id="chip-${w.word}" title="Find: ${w.display}">
+        <span>${w.emoji}</span><span class="ws-english">${w.english}</span><span class="ws-spanish-reveal"> → ${w.display}</span>
+       </div>`
+    ).join('');
+  }
+
+  function getCellAt(r, c) {
+    return document.querySelector(`.ws-cell[data-r="${r}"][data-c="${c}"]`);
+  }
+
+  function wsStartSelect(e) {
+    wsSelecting = true;
+    wsCurrentSelection = [];
+    const cell = e.currentTarget;
+    wsStartCell = {r: +cell.dataset.r, c: +cell.dataset.c};
+    highlightSelection([wsStartCell]);
+  }
+
+  function wsContinueSelect(e) {
+    if (!wsSelecting) return;
+    const cell = e.currentTarget;
+    const end = {r: +cell.dataset.r, c: +cell.dataset.c};
+    const sel = getCellsInLine(wsStartCell, end);
+    highlightSelection(sel);
+    wsCurrentSelection = sel;
+  }
+
+  function wsEndSelect() {
+    if (!wsSelecting) return;
+    wsSelecting = false;
+    checkSelection(wsCurrentSelection);
+    clearHighlight();
+  }
+
+  function wsTouchStart(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (el && el.classList.contains('ws-cell')) wsStartSelect({currentTarget: el});
+  }
+
+  function wsTouchMove(e) {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (el && el.classList.contains('ws-cell')) wsContinueSelect({currentTarget: el});
+  }
+
+  function wsTouchEnd(e) {
+    e.preventDefault();
+    wsEndSelect();
+  }
+
+  function getCellsInLine(start, end) {
+    const dr = end.r - start.r, dc = end.c - start.c;
+    const len = Math.max(Math.abs(dr), Math.abs(dc));
+    if (len === 0) return [start];
+    // Only allow straight lines (H, V, diagonal)
+    const stepR = dr === 0 ? 0 : dr / Math.abs(dr);
+    const stepC = dc === 0 ? 0 : dc / Math.abs(dc);
+    // Must be straight or diagonal
+    if (Math.abs(dr) !== 0 && Math.abs(dc) !== 0 && Math.abs(dr) !== Math.abs(dc)) {
+      return [start];
+    }
+    const cells = [];
+    for (let i = 0; i <= len; i++) cells.push({r: start.r + stepR*i, c: start.c + stepC*i});
+    return cells;
+  }
+
+  function highlightSelection(cells) {
+    document.querySelectorAll('.ws-cell.selecting').forEach(el => el.classList.remove('selecting'));
+    cells.forEach(({r,c}) => {
+      const el = getCellAt(r, c);
+      if (el && !el.classList.contains('found-cell')) el.classList.add('selecting');
+    });
+  }
+
+  function clearHighlight() {
+    document.querySelectorAll('.ws-cell.selecting').forEach(el => el.classList.remove('selecting'));
+  }
+
+  function checkSelection(cells) {
+    if (!cells || cells.length < 2) return;
+    const selected = cells.map(({r,c}) => wsGrid[r][c]).join('');
+    const reversed = selected.split('').reverse().join('');
+    for (const pw of wsPlacedWords) {
+      if (wsFound.has(pw.word)) continue;
+      if (pw.word === selected || pw.word === reversed) {
+        wsFound.add(pw.word);
+        // Mark cells
+        pw.cells.forEach(({r,c}) => {
+          const el = getCellAt(r,c);
+          if (el) { el.classList.add('found-cell', 'found-new'); }
+        });
+        // Cross off chip
+        const chip = document.getElementById('chip-' + pw.word);
+        if (chip) chip.classList.add('found');
+        // Speak the word!
+        const wordObj = wsWords.find(w => w.word === pw.word);
+        if (wordObj) {
+          setTimeout(() => speakSpanish({stopPropagation:()=>{}, _override: wordObj.display}), 200);
+        }
+        document.getElementById('ws-found').textContent = wsFound.size;
+        if (wsFound.size === wsPlacedWords.length) {
+          setTimeout(() => document.getElementById('ws-complete').classList.remove('hidden'), 600);
+        }
+        return;
+      }
+    }
+  }
+
   // Init
   updateCard();
 </script>
